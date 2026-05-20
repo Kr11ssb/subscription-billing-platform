@@ -20,5 +20,5 @@ public class RegisterRequestDTO {
     private String password;
 
     @NotBlank(message = "Organization name is required")
-    private String organization;
+    private String organizationName;
 }
