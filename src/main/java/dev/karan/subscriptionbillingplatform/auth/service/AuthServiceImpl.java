@@ -1,9 +1,7 @@
 package dev.karan.subscriptionbillingplatform.auth.service;
 
-import dev.karan.subscriptionbillingplatform.auth.dto.AuthResponseDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.LoginRequestDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.LoginResponseDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.RegisterRequestDTO;
+import dev.karan.subscriptionbillingplatform.auth.dto.*;
+import dev.karan.subscriptionbillingplatform.auth.entity.RefreshToken;
 import dev.karan.subscriptionbillingplatform.auth.entity.Role;
 import dev.karan.subscriptionbillingplatform.auth.entity.User;
 import dev.karan.subscriptionbillingplatform.auth.entity.UserStatus;
@@ -11,12 +9,16 @@ import dev.karan.subscriptionbillingplatform.auth.repository.UserRepository;
 import dev.karan.subscriptionbillingplatform.auth.security.JwtService;
 import dev.karan.subscriptionbillingplatform.common.exception.EmailAlreadyExistsException;
 import dev.karan.subscriptionbillingplatform.common.exception.InvalidCredentialsException;
+import dev.karan.subscriptionbillingplatform.common.response.ApiResponse;
 import dev.karan.subscriptionbillingplatform.config.JwtProperties;
 import dev.karan.subscriptionbillingplatform.organization.entity.Organization;
 import dev.karan.subscriptionbillingplatform.organization.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -28,7 +30,9 @@ public class AuthServiceImpl implements AuthService{
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final JwtProperties jwtProperties;
+    private final RefreshTokenService refreshTokenService;
 
+    @Transactional
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
 
@@ -70,15 +74,50 @@ public class AuthServiceImpl implements AuthService{
          }
 
          String accessToken = jwtService.generateAccessToken(user);
-         String refreshToken = jwtService.generateRefreshToken(user);
+
+         //String refreshToken = jwtService.generateRefreshToken(user);
+
+        RefreshToken refreshToken =
+        refreshTokenService.createRefreshToken(user);
+
          Long expiresIn = jwtProperties.getAccessTokenExpiration();
 
          LoginResponseDTO response = new LoginResponseDTO();
          response.setAccessToken(accessToken);
-         response.setRefreshToken(refreshToken);
+         response.setRefreshToken(refreshToken.getToken());
          response.setExpiresIn(expiresIn);
 
          return response;
+    }
+
+    @Override
+    public LoginResponseDTO refreshToken(RefreshRequestDTO request) {
+
+        RefreshToken oldRefreshToken =
+                refreshTokenService.validateRefreshToken(request.getRefreshToken());
+
+        User user = oldRefreshToken.getUser();
+
+        refreshTokenService.revokeRefreshToken(request.getRefreshToken());
+
+        String newAccessToken = jwtService.generateAccessToken(user);
+
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+        LoginResponseDTO response = new LoginResponseDTO();
+        response.setAccessToken(newAccessToken);
+        response.setRefreshToken(newRefreshToken.getToken());
+        response.setExpiresIn(jwtProperties.getAccessTokenExpiration());
+
+        return response;
+    }
+
+    @Override
+    public ApiResponse<Void> logout(RefreshRequestDTO request) {
+
+        refreshTokenService.revokeRefreshToken(request.getRefreshToken());
+
+        return new ApiResponse<>(true,"Logged out Successfully",null,LocalDateTime.now());
     }
 
 }

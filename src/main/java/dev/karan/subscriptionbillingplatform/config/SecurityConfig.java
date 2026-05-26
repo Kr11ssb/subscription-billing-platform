@@ -1,6 +1,7 @@
 package dev.karan.subscriptionbillingplatform.config;
 
 import dev.karan.subscriptionbillingplatform.auth.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,13 +27,30 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.disable());
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
-             .anyRequest().authenticated())
+
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+       // http.authorizeHttpRequests(auth -> auth
+        //                .requestMatchers("/auth/**").permitAll()
+         //               .anyRequest().authenticated()
+          //      );
+
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                )
+        );
+
                 //Avoids default Spring login page.
-             .formLogin(form -> form.disable())
-             .httpBasic(basic -> basic.disable())
-             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                http.formLogin(form -> form.disable())
+
+                .httpBasic(basic -> basic.disable())
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+             );
 
         return http.build();
     }

@@ -73,4 +73,19 @@ public class JwtServiceImpl implements JwtService {
         return extractUsername(token).equals(userDetails.getUsername()) &&
                 !extractExpiration(token).before(new Date());
 }
+
+    @Override
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+
+            return !extractExpiration(token).before(new Date());
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

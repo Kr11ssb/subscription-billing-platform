@@ -1,9 +1,6 @@
 package dev.karan.subscriptionbillingplatform.auth.controller;
 
-import dev.karan.subscriptionbillingplatform.auth.dto.AuthResponseDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.LoginRequestDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.LoginResponseDTO;
-import dev.karan.subscriptionbillingplatform.auth.dto.RegisterRequestDTO;
+import dev.karan.subscriptionbillingplatform.auth.dto.*;
 import dev.karan.subscriptionbillingplatform.auth.service.AuthService;
 import dev.karan.subscriptionbillingplatform.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -23,14 +20,52 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterRequestDTO requestDTO){
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> register
+            (@Valid @RequestBody RegisterRequestDTO requestDTO){
+
        AuthResponseDTO response = authService.register(requestDTO);
-       return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"User registered successfully",response, LocalDateTime.now()));
+
+       return ResponseEntity.status(HttpStatus.CREATED)
+               .body(ApiResponse.success(
+                       "User registered successfully", response));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO requestDTO){
+    @PostMapping ("/login")
+    public ResponseEntity<ApiResponse<LoginResponseDTO>> login
+            (@Valid @RequestBody LoginRequestDTO requestDTO){
+
         LoginResponseDTO response = authService.login(requestDTO);
-        return  ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"User logged-in successfully",response,LocalDateTime.now()));
+
+        return  ResponseEntity.ok(
+                ApiResponse.success("User logged-in successfully",
+                        response));
     }
+
+      @PostMapping("/refresh-token")
+      public ResponseEntity<ApiResponse<LoginResponseDTO>> refreshToken
+              (@Valid @RequestBody RefreshRequestDTO requestDTO){
+
+        LoginResponseDTO response = authService.refreshToken(requestDTO);
+
+          return ResponseEntity.ok(
+                  ApiResponse.success(
+                          "Token refreshed successfully",
+                          response));
+      }
+
+      @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout
+              (@Valid @RequestBody RefreshRequestDTO requestDTO){
+
+          authService.logout(requestDTO);
+
+          return ResponseEntity.ok(
+                  ApiResponse.success(
+                          "Logged out successfully",
+                          null
+                  )
+          );
+      }
 }
+
+
