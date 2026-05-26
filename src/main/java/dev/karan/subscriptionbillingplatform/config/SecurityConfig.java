@@ -31,10 +31,16 @@ public class SecurityConfig {
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-       // http.authorizeHttpRequests(auth -> auth
-        //                .requestMatchers("/auth/**").permitAll()
-         //               .anyRequest().authenticated()
-          //      );
+        //Swagger endpoints are explicitly whitelisted while business APIs remain JWT protected
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+        );
 
         http.exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) ->
