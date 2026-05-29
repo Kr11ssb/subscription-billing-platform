@@ -5,6 +5,8 @@ import dev.karan.subscriptionbillingplatform.plan.dto.CreatePlanRequestDTO;
 import dev.karan.subscriptionbillingplatform.plan.dto.PlanResponseDTO;
 import dev.karan.subscriptionbillingplatform.plan.dto.UpdatePlanRequestDTO;
 import dev.karan.subscriptionbillingplatform.plan.service.PlanService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -14,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/plans")
+@Tag(name = "Plan Management", description = "Plan APIs")
 public class PlanController {
 
     private final PlanService planService;

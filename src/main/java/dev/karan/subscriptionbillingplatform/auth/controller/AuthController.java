@@ -3,6 +3,7 @@ package dev.karan.subscriptionbillingplatform.auth.controller;
 import dev.karan.subscriptionbillingplatform.auth.dto.*;
 import dev.karan.subscriptionbillingplatform.auth.service.AuthService;
 import dev.karan.subscriptionbillingplatform.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth Management", description = "Auth APIs")
 public class AuthController {
 
     private final AuthService authService;
