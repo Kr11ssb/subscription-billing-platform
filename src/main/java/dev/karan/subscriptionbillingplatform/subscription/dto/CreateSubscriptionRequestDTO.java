@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class CreateSubscriptionRequestDTO {
 
-    @NotNull
-    private Long userId;
+    /*@NotNull
+    private Long userId;*/
 
     @NotNull
     private Long planId;

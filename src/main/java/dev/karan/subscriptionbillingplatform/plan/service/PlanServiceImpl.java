@@ -78,11 +78,13 @@ public class PlanServiceImpl implements PlanService {
         return planMapper.toResponseDTO(plan);
     }
 
+    @Transactional
     @Override
     public PlanResponseDTO getPlanById(Long planId) {
 
         Plan plan = planRepository.findByIdAndStatus(planId, PlanStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan with id " + planId + " not found"));
+
 
         return planMapper.toResponseDTO(plan);
     }

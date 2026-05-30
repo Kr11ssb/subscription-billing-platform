@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 public class SubscriptionResponseDTO {
 
-    private Long id;
+    private Long subscriptionId;
 
     private Long userId;
 

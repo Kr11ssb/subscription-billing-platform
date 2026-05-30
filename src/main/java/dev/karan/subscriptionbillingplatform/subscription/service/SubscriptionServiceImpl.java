@@ -19,12 +19,16 @@ import lombok.AllArgsConstructor;
 import dev.karan.subscriptionbillingplatform.auth.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus.ACTIVE;
+import static dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus.PENDING_PAYMENT;
 
 @Service
 @AllArgsConstructor
@@ -40,9 +44,16 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     @Override
     public SubscriptionResponseDTO createSubscription(CreateSubscriptionRequestDTO request) {
 
-        User user = userRepository.findById(request.getUserId())
+        /*User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User with id " + request.getUserId() + " not found"));
+*/
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
 
         if (user.getUserStatus() != UserStatus.ACTIVE) {
             throw new BusinessValidationException("Only active user can create subscription");
@@ -56,9 +67,12 @@ public class SubscriptionServiceImpl implements SubscriptionService{
             throw new BusinessValidationException("Only active plan can be subscribed");
         }
 
-        if (subscriptionRepository.existsByUserIdAndStatus(
-                user.getId(), ACTIVE)) {
-            throw new DuplicateResourceException("User already has an active subscription");
+        //duplicate subs check
+        if (subscriptionRepository.existsByUserIdAndStatusIn(
+                user.getId(), List.of(SubscriptionStatus.ACTIVE,
+                        SubscriptionStatus.PENDING_PAYMENT))) {
+
+            throw new DuplicateResourceException("User already has an active or pending subscription");
         }
 
         Subscription subscription = subscriptionMapper.toEntity(request);
@@ -67,7 +81,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
 
         subscription.setUser(user);
         subscription.setPlan(plan);
-        subscription.setStatus(ACTIVE);
+        subscription.setStatus(PENDING_PAYMENT);
         subscription.setStartDate(today);
 
         if (request.getBillingCycle() == BillingCycle.MONTHLY){
@@ -129,6 +143,4 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         Page<Subscription> subscriptionPage = subscriptionRepository.findAll(pageable);
         return subscriptionPage.map(subscriptionMapper::toResponseDTO);
     }
-
-
 }

@@ -17,9 +17,9 @@ public class SubscriptionMapperImpl implements SubscriptionMapper{
 
     @Override
     public SubscriptionResponseDTO toResponseDTO(Subscription subscription) {
-        SubscriptionResponseDTO response = new SubscriptionResponseDTO();
+
         return SubscriptionResponseDTO.builder()
-                .id(subscription.getId())
+                .subscriptionId(subscription.getId())
                 .userId(subscription.getUser().getId())
                 .planId(subscription.getPlan().getId())
                 .planName(subscription.getPlan().getName())
