@@ -37,7 +37,6 @@ public class StripeWebhookService {
         } catch (SignatureVerificationException ex) {
 
             log.error("Invalid Stripe signature", ex);
-
             throw new RuntimeException("Invalid Stripe signature");
         }
 
