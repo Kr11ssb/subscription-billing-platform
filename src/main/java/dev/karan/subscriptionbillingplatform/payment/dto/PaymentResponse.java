@@ -25,6 +25,8 @@ public class PaymentResponse {
 
     private PaymentGateway gateway;
 
+    private String paymentUrl;
+
     private PaymentMethod paymentMethod;
 
     private String failureReason;

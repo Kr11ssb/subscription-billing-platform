@@ -50,6 +50,9 @@ public class Payment extends BaseEntity{
     @Column(nullable = false)
     private PaymentGateway gateway;
 
+    @Column(name = "payment_url", columnDefinition = "TEXT")
+    private String paymentUrl;
+
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 

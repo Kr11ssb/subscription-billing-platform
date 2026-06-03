@@ -8,6 +8,7 @@ import dev.karan.subscriptionbillingplatform.plan.service.PlanService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -67,11 +68,13 @@ public class PlanController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PlanResponseDTO>>> getAllPlans(
+            @ParameterObject
             @PageableDefault(size = 10, sort = "name") Pageable pageable) {
 
         Page<PlanResponseDTO> response = planService.getAllPlans(pageable);
 
-        return ResponseEntity.ok(ApiResponse.success("Plans fetched successfully", response));
+        return ResponseEntity.ok(ApiResponse.success(
+                "Plans fetched successfully", response));
     }
     }
 

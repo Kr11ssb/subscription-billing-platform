@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class PlanResponseDTO {
 
-    private Long id;
+    private Long planId;
 
     private String name;
 

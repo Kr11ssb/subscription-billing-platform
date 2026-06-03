@@ -19,4 +19,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findBySubscriptionId(Long subscriptionId , Pageable pageable);
 
     boolean existsBySubscriptionIdAndStatusIn(Long subscriptionId, Collection<PaymentStatus> statuses);
+
+
 }

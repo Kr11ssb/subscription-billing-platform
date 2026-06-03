@@ -15,6 +15,7 @@ public class PaymentMapperImpl implements PaymentMapper {
                 .amount(payment.getAmount())
                 .currency(payment.getCurrency())
                 .gateway(payment.getGateway())
+                .paymentUrl(payment.getPaymentUrl())
                 .paymentMethod(payment.getPaymentMethod())
                 .failureReason(payment.getFailureReason())
                 .initiatedAt(payment.getInitiatedAt())

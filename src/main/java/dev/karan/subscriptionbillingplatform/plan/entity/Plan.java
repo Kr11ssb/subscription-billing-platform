@@ -35,7 +35,7 @@ public class Plan {
     @PositiveOrZero
     private BigDecimal yearlyPrice;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name= "plan_features",
             joinColumns = @JoinColumn(name = "plan_id" ))
     @Column(name = "feature_name")

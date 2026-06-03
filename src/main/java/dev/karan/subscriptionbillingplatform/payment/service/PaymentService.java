@@ -13,4 +13,7 @@ public interface PaymentService {
 
     Page<PaymentResponse> getPaymentBySubscription(
             Long subscriptionId, Pageable pageable);
+
+    void markPaymentSuccessful(
+            String paymentReference, String transactionId);
 }

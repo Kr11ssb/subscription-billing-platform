@@ -25,7 +25,7 @@ public class PlanMapperImpl implements PlanMapper{
     @Override
     public PlanResponseDTO toResponseDTO(Plan plan) {
         PlanResponseDTO response = new PlanResponseDTO();
-        response.setId(plan.getId());
+        response.setPlanId(plan.getId());
         response.setName(plan.getName());
         response.setCurrency(plan.getCurrency());
         response.setMonthlyPrice(plan.getMonthlyPrice());

@@ -4,18 +4,17 @@ import dev.karan.subscriptionbillingplatform.common.response.ApiResponse;
 import dev.karan.subscriptionbillingplatform.payment.dto.CreatePaymentRequest;
 import dev.karan.subscriptionbillingplatform.payment.dto.PaymentResponse;
 import dev.karan.subscriptionbillingplatform.payment.service.PaymentService;
-import dev.karan.subscriptionbillingplatform.plan.dto.PlanResponseDTO;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Pageable;
 
 @SecurityRequirement(name = "bearerAuth")
 @AllArgsConstructor
@@ -26,7 +25,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
+    @PostMapping("/payments")
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
             @Valid @RequestBody CreatePaymentRequest request){
 
@@ -36,7 +35,7 @@ public class PaymentController {
                 "Payment is processed successfully", response));
     }
 
-    @GetMapping("/(paymentReference)")
+    @GetMapping("/payments/{paymentReference}")
     public ResponseEntity<ApiResponse<PaymentResponse>> getPaymentByPaymentReference(
             @PathVariable String paymentReference){
 
@@ -48,9 +47,10 @@ public class PaymentController {
                         "payment reference fetched successfully", response));
     }
 
-    @GetMapping("/subscription/{subscriptioonId}")
-    public ResponseEntity<ApiResponse<Page<PaymentResponse>>> getPaymentBySubsccription(
+    @GetMapping("/payments/subscription/{subscriptionId}")
+    public ResponseEntity<ApiResponse<Page<PaymentResponse>>> getPaymentBySubscription(
             @PathVariable Long subscriptionId,
+            @ParameterObject
             @PageableDefault(size = 10, sort = "initiatedAt") Pageable pageable) {
 
         Page<PaymentResponse> response = paymentService.getPaymentBySubscription(subscriptionId, pageable);

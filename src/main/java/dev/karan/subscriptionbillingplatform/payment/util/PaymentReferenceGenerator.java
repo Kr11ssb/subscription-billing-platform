@@ -1,4 +1,4 @@
-package dev.karan.subscriptionbillingplatform.payment.service;
+package dev.karan.subscriptionbillingplatform.payment.util;
 import org.springframework.stereotype.Component;
 import java.security.SecureRandom;
 
