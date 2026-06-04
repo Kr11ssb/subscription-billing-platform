@@ -3,8 +3,6 @@ package dev.karan.subscriptionbillingplatform.subscription.controller;
 import dev.karan.subscriptionbillingplatform.common.response.ApiResponse;
 import dev.karan.subscriptionbillingplatform.subscription.dto.CreateSubscriptionRequestDTO;
 import dev.karan.subscriptionbillingplatform.subscription.dto.SubscriptionResponseDTO;
-import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
-import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
 import dev.karan.subscriptionbillingplatform.subscription.service.SubscriptionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
-    private final SubscriptionRepository subscriptionRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<SubscriptionResponseDTO>> createSubscription(
@@ -39,7 +36,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/{subscriptionId}")
-    public ResponseEntity<ApiResponse<SubscriptionResponseDTO>> getSubscrriptionById(
+    public ResponseEntity<ApiResponse<SubscriptionResponseDTO>> getSubscriptionById(
             @PathVariable Long subscriptionId){
 
      SubscriptionResponseDTO response = subscriptionService.getSubscriptionById(subscriptionId);
@@ -68,5 +65,15 @@ public class SubscriptionController {
                 "All subscription fetched successfully", response));
     }
 
+    @PostMapping("/{subscriptionId}/cancel")
+    public ResponseEntity<ApiResponse<SubscriptionResponseDTO>> cancelSubscription(
+            @PathVariable Long subscriptionId){
 
+        SubscriptionResponseDTO response =
+                subscriptionService.cancelSubscription(subscriptionId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                "Subscription cancelled successfully", response));
+    }
 }

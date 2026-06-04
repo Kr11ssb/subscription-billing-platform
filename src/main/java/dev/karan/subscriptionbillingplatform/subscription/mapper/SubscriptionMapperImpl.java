@@ -26,7 +26,7 @@ public class SubscriptionMapperImpl implements SubscriptionMapper{
                 .billingCycle(subscription.getBillingCycle())
                 .status(subscription.getStatus())
                 .startDate(subscription.getStartDate())
-                .enddate(subscription.getEndDate())
+                .endDate(subscription.getEndDate())
                 .build();
     }
 

@@ -1,4 +1,4 @@
-package dev.karan.subscriptionbillingplatform.subscription.service;
+package dev.karan.subscriptionbillingplatform.subscription.service.Impl;
 
 import dev.karan.subscriptionbillingplatform.auth.entity.UserStatus;
 import dev.karan.subscriptionbillingplatform.auth.repository.UserRepository;
@@ -15,6 +15,7 @@ import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
 import dev.karan.subscriptionbillingplatform.subscription.mapper.SubscriptionMapper;
 import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
+import dev.karan.subscriptionbillingplatform.subscription.service.SubscriptionService;
 import lombok.AllArgsConstructor;
 import dev.karan.subscriptionbillingplatform.auth.entity.User;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ import static dev.karan.subscriptionbillingplatform.subscription.entity.Subscrip
 @Service
 @AllArgsConstructor
 @Transactional
-public class SubscriptionServiceImpl implements SubscriptionService{
+public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final UserRepository userRepository;
     private final PlanRepository planRepository;

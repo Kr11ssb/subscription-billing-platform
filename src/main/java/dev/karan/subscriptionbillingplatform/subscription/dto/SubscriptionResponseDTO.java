@@ -27,7 +27,7 @@ public class SubscriptionResponseDTO {
 
     private LocalDate startDate;
 
-    private LocalDate enddate;
+    private LocalDate endDate;
 
 
 }
