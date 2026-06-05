@@ -1,7 +1,9 @@
 package dev.karan.subscriptionbillingplatform.payment.service;
 
+import com.stripe.model.SubscriptionItem;
 import dev.karan.subscriptionbillingplatform.payment.dto.CreatePaymentRequest;
 import dev.karan.subscriptionbillingplatform.payment.dto.PaymentResponse;
+import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,4 +18,6 @@ public interface PaymentService {
 
     void markPaymentSuccessful(
             String paymentReference, String transactionId);
+
+    void createRenewalPayment(Subscription subscription);
 }

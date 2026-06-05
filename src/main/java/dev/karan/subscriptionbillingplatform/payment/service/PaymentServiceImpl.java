@@ -7,6 +7,8 @@ import dev.karan.subscriptionbillingplatform.payment.adapter.PaymentGatewayAdapt
 import dev.karan.subscriptionbillingplatform.payment.dto.CreatePaymentRequest;
 import dev.karan.subscriptionbillingplatform.payment.dto.PaymentResponse;
 import dev.karan.subscriptionbillingplatform.payment.entity.Payment;
+import dev.karan.subscriptionbillingplatform.payment.enums.PaymentGateway;
+import dev.karan.subscriptionbillingplatform.payment.enums.PaymentPurpose;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentStatus;
 import dev.karan.subscriptionbillingplatform.payment.factory.PaymentGatewayFactory;
 import dev.karan.subscriptionbillingplatform.payment.gateway.PaymentGatewayRequest;
@@ -60,6 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         BigDecimal amount = calculateAmount(subscription);
         String paymentReference;
+
         //check generated reference already exists
         do {
             paymentReference = paymentReferenceGenerator.generate();
@@ -73,6 +76,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .gateway(request.getGateway())
                 .status(PaymentStatus.PENDING)
                 .initiatedAt(LocalDateTime.now())
+                .purpose(PaymentPurpose.NEW_SUBSCRIPTION)
                 .build();
 
         //save payment
@@ -165,5 +169,80 @@ public class PaymentServiceImpl implements PaymentService {
 
     }
 
+    @Override
+    public void createRenewalPayment(Subscription subscription) {
+
+        if (subscription.getStatus() != SubscriptionStatus.ACTIVE){
+            throw new BusinessValidationException(
+                    "Only ACTIVE subscription can be renewed");
+        }
+
+        boolean renewalPending = paymentRepository.existsBySubscriptionAndPurposeAndStatus(
+                subscription,
+                PaymentPurpose.RENEWAL,
+                PaymentStatus.PENDING);
+
+        if (renewalPending){
+            return;
+        }
+
+        Payment lastSuccessfulPayment = paymentRepository.findTopBySubscriptionAndStatusOrderByInitiatedAtDesc(
+                subscription,
+                PaymentStatus.SUCCESS)
+                .orElseThrow(() ->
+                        new BusinessValidationException("No successful payment found"));
+
+        PaymentGateway gateway = lastSuccessfulPayment.getGateway();
+
+        BigDecimal amount = calculateAmount(subscription);
+
+        String paymentReference;
+
+        do {
+            paymentReference = paymentReferenceGenerator.generate();
+        } while (paymentRepository.existsByPaymentReference(paymentReference));
+
+        Payment payment = Payment.builder()
+                .paymentReference(paymentReference)
+                .subscription(subscription)
+                .amount(amount)
+                .currency(subscription.getPlan().getCurrency())
+                .gateway(gateway)
+                .status(PaymentStatus.PENDING)
+                .initiatedAt(LocalDateTime.now())
+                .purpose(PaymentPurpose.RENEWAL)
+                .build();
+
+        Payment savedPayment = paymentRepository.save(payment);
+
+        //get adapter
+        PaymentGatewayAdapter adapter = paymentGatewayFactory.getAdapter(
+                gateway);
+
+        PaymentGatewayRequest gatewayRequest = PaymentGatewayRequest.builder()
+                .paymentReference(paymentReference)
+                .amount(amount)
+                .currency(payment.getCurrency())
+                .customerEmail(subscription.getUser().getEmail())
+                .customerName(subscription.getUser().getName())
+                .build();
+
+        //create checkout session
+        PaymentGatewayResponse gatewayResponse =
+                adapter.createPayment(gatewayRequest);
+
+        //update payment
+        savedPayment.setGatewayOrderId(
+                gatewayResponse.getGatewayOrderId());
+
+        savedPayment.setStatus(
+                gatewayResponse.getStatus());
+
+        savedPayment.setPaymentUrl(
+                gatewayResponse.getPaymentUrl());
+
+        savedPayment = paymentRepository.save(savedPayment);
+
+    }
 
 }

@@ -3,6 +3,7 @@ package dev.karan.subscriptionbillingplatform.payment.entity;
 import dev.karan.subscriptionbillingplatform.common.entity.BaseEntity;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentGateway;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentMethod;
+import dev.karan.subscriptionbillingplatform.payment.enums.PaymentPurpose;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentStatus;
 import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import jakarta.persistence.*;
@@ -70,4 +71,7 @@ public class Payment extends BaseEntity{
 
     private LocalDateTime completedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentPurpose purpose;
 }

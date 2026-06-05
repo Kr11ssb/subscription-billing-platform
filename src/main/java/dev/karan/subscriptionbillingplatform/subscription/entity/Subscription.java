@@ -42,4 +42,7 @@ public class Subscription extends BaseEntity {
     @Column(nullable = false)
     private SubscriptionStatus status;
 
+    @Column(nullable = false)
+    private boolean autoRenew=false;
+
 }

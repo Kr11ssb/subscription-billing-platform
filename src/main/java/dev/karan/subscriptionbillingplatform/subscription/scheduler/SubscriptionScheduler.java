@@ -12,11 +12,12 @@ public class SubscriptionScheduler {
 
     private final SubscriptionLifecycleService subscriptionLifecycleService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "${subscription.expiration.cron}")
     public void expireSubscriptions(){
 
-       int expiredCount =
-               subscriptionLifecycleService.expireSubscriptions();
+        log.info("expiration scheduler started");
+
+       int expiredCount = subscriptionLifecycleService.expireSubscriptions();
 
         if (expiredCount == 0){
             log.info("No subscription found for expiration");
