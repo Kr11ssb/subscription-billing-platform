@@ -20,6 +20,7 @@ import dev.karan.subscriptionbillingplatform.plan.entity.Plan;
 import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
 import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
+import dev.karan.subscriptionbillingplatform.subscription.service.Impl.SubscriptionLifecycleServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentMapper paymentMapper;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
+    private final SubscriptionLifecycleServiceImpl subscriptionLifecycleService;
 
 
     private final PaymentGatewayFactory paymentGatewayFactory;
@@ -163,10 +165,18 @@ public class PaymentServiceImpl implements PaymentService {
         //Subscription activation
         Subscription subscription = payment.getSubscription();
 
-        if (subscription.getStatus() == SubscriptionStatus.PENDING_PAYMENT) {
-            subscription.setStatus(SubscriptionStatus.ACTIVE);
+        if (payment.getPurpose() == PaymentPurpose.NEW_SUBSCRIPTION){
+            subscriptionLifecycleService.activateSubscription(subscription);
         }
 
+        else if (payment.getPurpose() == PaymentPurpose.RENEWAL){
+            subscriptionLifecycleService.renewSubscription(subscription);
+        }
+
+        else {
+            throw new BusinessValidationException(
+                    "Unsupported payment purpose: " + payment.getPurpose());
+        }
     }
 
     @Override

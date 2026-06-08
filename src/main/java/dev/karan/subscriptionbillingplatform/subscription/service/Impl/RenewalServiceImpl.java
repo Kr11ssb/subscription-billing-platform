@@ -33,7 +33,7 @@ public class RenewalServiceImpl implements RenewalService {
     public int renewSubscription() {
 
         List<Subscription> subscriptionToRenew =
-                subscriptionRepository.findByStatusAndAutoRenewAndEndDate(
+                subscriptionRepository.findByStatusAndAutoRenewAndEndDateLessThanEqual(
                         SubscriptionStatus.ACTIVE,
                         true
                         , LocalDate.now().plusDays(7));
