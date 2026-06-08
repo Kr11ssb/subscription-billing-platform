@@ -1,5 +1,7 @@
 package dev.karan.subscriptionbillingplatform.subscription.service.Impl;
 
+import dev.karan.subscriptionbillingplatform.notification.event.RenewalEmailEvent;
+import dev.karan.subscriptionbillingplatform.notification.producer.NotificationProducer;
 import dev.karan.subscriptionbillingplatform.notification.service.EmailService;
 import dev.karan.subscriptionbillingplatform.payment.entity.Payment;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentPurpose;
@@ -26,7 +28,8 @@ public class RenewalServiceImpl implements RenewalService {
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
-    private final EmailService emailService;
+   // private final EmailService emailService;
+    private final NotificationProducer notificationProducer;
 
     @Override
     @Transactional
@@ -65,12 +68,21 @@ public class RenewalServiceImpl implements RenewalService {
                 continue;
         }
 
-        emailService.sendRenewalPaymentLink(
-                subscription.getUser().getEmail(),
-                subscription.getUser().getName(),
-                payment.getPaymentUrl(),
-                subscription.getEndDate()
-        );
+//        emailService.sendRenewalPaymentLink(
+//                subscription.getUser().getEmail(),
+//                subscription.getUser().getName(),
+//                payment.getPaymentUrl(),
+//                subscription.getEndDate()
+//        );
+
+            RenewalEmailEvent event = new RenewalEmailEvent(
+                            subscription.getUser().getEmail(),
+                            subscription.getUser().getName(),
+                            payment.getPaymentUrl(),
+                            subscription.getEndDate()
+                    );
+
+            notificationProducer.sendRenewalEmail(event);
 
         renewalCount++;
 
