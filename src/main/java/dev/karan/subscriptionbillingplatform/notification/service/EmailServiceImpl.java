@@ -33,20 +33,28 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     public void sendRenewalPaymentLink(String email,
-                                       String customerName,
-                                       String paymentUrl,
-                                       LocalDate expirydate) {
+                                          String customerName,
+                                          String paymentUrl,
+                                          LocalDate expirydate) {
 
         String subject = "Subscription Renewal Reminder";
+
         String body = """
         Hello %s,
+        
         Your subscription expires on %s.
+        
         Please renew using the link below:
+        
         %s
 
-        Thank you.
+        Thank you,
+        Subscription Billing Platform Team
         """
-                .formatted(customerName,expirydate,paymentUrl);
+                .formatted(
+                        customerName,
+                        expirydate,
+                        paymentUrl);
 
         sendEmail(email, subject, body);
     }

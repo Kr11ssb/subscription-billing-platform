@@ -56,6 +56,8 @@ public class StripeWebhookService {
 
           private void handleCheckoutSessionCompleted(Event event){
 
+              log.info("ENTERED checkout.session.completed handler");
+
               EventDataObjectDeserializer deserializer =
                       event.getDataObjectDeserializer();
 

@@ -10,8 +10,7 @@ import lombok.Setter;
 @Setter
 public class CreateSubscriptionRequestDTO {
 
-    /*@NotNull
-    private Long userId;*/
+    private Boolean autoRenew;
 
     @NotNull
     private Long planId;

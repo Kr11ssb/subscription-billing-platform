@@ -1,5 +1,7 @@
 package dev.karan.subscriptionbillingplatform.subscription.service.Impl;
 
+import dev.karan.subscriptionbillingplatform.notification.service.EmailService;
+import dev.karan.subscriptionbillingplatform.payment.entity.Payment;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentPurpose;
 import dev.karan.subscriptionbillingplatform.payment.enums.PaymentStatus;
 import dev.karan.subscriptionbillingplatform.payment.repository.PaymentRepository;
@@ -24,6 +26,7 @@ public class RenewalServiceImpl implements RenewalService {
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -43,18 +46,36 @@ public class RenewalServiceImpl implements RenewalService {
 
         for (Subscription subscription : subscriptionToRenew) {
 
-            boolean renewalPending = paymentRepository.existsBySubscriptionAndPurposeAndStatus(
+            boolean renewalPending =
+                    paymentRepository.existsBySubscriptionAndPurposeAndStatus(
                     subscription,
                     PaymentPurpose.RENEWAL,
                     PaymentStatus.PENDING);
 
             if (renewalPending) {
+                log.info(
+                        "Renewal payment already exists for subscription {}", subscription.getId());
                 continue;
             }
 
-            paymentService.createRenewalPayment(subscription);
-            renewalCount++;
+            Payment payment =
+                    paymentService.createRenewalPayment(subscription);
+
+            if (payment == null) {
+                continue;
         }
+
+        emailService.sendRenewalPaymentLink(
+                subscription.getUser().getEmail(),
+                subscription.getUser().getName(),
+                payment.getPaymentUrl(),
+                subscription.getEndDate()
+        );
+
+        renewalCount++;
+
+        log.info("Renewal email sent for subscription {}", subscription.getId());
+    }
 
         return renewalCount;
     }

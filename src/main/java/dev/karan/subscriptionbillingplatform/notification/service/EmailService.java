@@ -1,5 +1,7 @@
 package dev.karan.subscriptionbillingplatform.notification.service;
 
+import dev.karan.subscriptionbillingplatform.payment.entity.Payment;
+
 import java.time.LocalDate;
 
 public interface EmailService {

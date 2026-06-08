@@ -73,7 +73,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 user.getId(), List.of(SubscriptionStatus.ACTIVE,
                         SubscriptionStatus.PENDING_PAYMENT))) {
 
-            throw new DuplicateResourceException("User already has an active or pending subscription");
+            throw new DuplicateResourceException("User already has an active or pending_payment subscription");
         }
 
         Subscription subscription = subscriptionMapper.toEntity(request);
@@ -84,6 +84,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.setPlan(plan);
         subscription.setStatus(PENDING_PAYMENT);
         subscription.setStartDate(today);
+        subscription.setAutoRenew(Boolean.TRUE.equals(request.getAutoRenew()));
 
         if (request.getBillingCycle() == BillingCycle.MONTHLY){
             subscription.setEndDate(today.plusMonths(1));

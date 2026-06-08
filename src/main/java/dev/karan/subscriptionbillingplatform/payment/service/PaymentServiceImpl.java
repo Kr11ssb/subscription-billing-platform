@@ -170,7 +170,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void createRenewalPayment(Subscription subscription) {
+    public Payment createRenewalPayment(Subscription subscription) {
 
         if (subscription.getStatus() != SubscriptionStatus.ACTIVE){
             throw new BusinessValidationException(
@@ -183,7 +183,7 @@ public class PaymentServiceImpl implements PaymentService {
                 PaymentStatus.PENDING);
 
         if (renewalPending){
-            return;
+            return null;
         }
 
         Payment lastSuccessfulPayment = paymentRepository.findTopBySubscriptionAndStatusOrderByInitiatedAtDesc(
@@ -242,6 +242,8 @@ public class PaymentServiceImpl implements PaymentService {
                 gatewayResponse.getPaymentUrl());
 
         savedPayment = paymentRepository.save(savedPayment);
+
+        return  savedPayment;
 
     }
 

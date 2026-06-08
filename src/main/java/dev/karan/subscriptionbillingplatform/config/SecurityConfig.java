@@ -39,7 +39,9 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/v3/api-docs/**",
                         "/notifications/**",
-                        "/webhooks/**"
+                        "/webhooks/**",
+                        "/payment/success",
+                        "/payment/cancel"
                 ).permitAll()
                 .anyRequest().authenticated()
         );
