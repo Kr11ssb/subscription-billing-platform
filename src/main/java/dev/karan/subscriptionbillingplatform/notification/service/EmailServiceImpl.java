@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService{
                                           String paymentUrl,
                                           LocalDate expirydate) {
 
-        String subject = "Subscription Renewal Reminder";
+       String subject = "Subscription Renewal Reminder";
 
         String body = """
         Hello %s,
