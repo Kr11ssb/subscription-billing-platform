@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,6 @@ public class RenewalServiceImpl implements RenewalService {
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
-   // private final EmailService emailService;
     private final NotificationProducer notificationProducer;
 
     @Override
@@ -49,6 +49,7 @@ public class RenewalServiceImpl implements RenewalService {
 
         for (Subscription subscription : subscriptionToRenew) {
 
+            //Idempotency Check
             boolean renewalPending =
                     paymentRepository.existsBySubscriptionAndPurposeAndStatus(
                     subscription,
@@ -68,27 +69,34 @@ public class RenewalServiceImpl implements RenewalService {
                 continue;
         }
 
-//        emailService.sendRenewalPaymentLink(
-//                subscription.getUser().getEmail(),
-//                subscription.getUser().getName(),
-//                payment.getPaymentUrl(),
-//                subscription.getEndDate()
-//        );
-
-            RenewalEmailEvent event = new RenewalEmailEvent(
-                            subscription.getUser().getEmail(),
-                            subscription.getUser().getName(),
-                            payment.getPaymentUrl(),
-                            subscription.getEndDate()
-                    );
+            RenewalEmailEvent event =
+                    buildRenewalEvent(subscription, payment);
 
             notificationProducer.sendRenewalEmail(event);
 
-        renewalCount++;
+            log.info(
+                    "Published renewal event {} for subscription {}",
+                    event.eventId(),
+                    subscription.getId()
+            );
 
-        log.info("Renewal email sent for subscription {}", subscription.getId());
+        renewalCount++;
+        log.info("Renewal email event published for subscription {}",
+                subscription.getId());
     }
 
         return renewalCount;
+    }
+
+    public RenewalEmailEvent buildRenewalEvent(
+            Subscription subscription, Payment payment){
+
+        return new RenewalEmailEvent(
+                UUID.randomUUID(),
+                subscription.getUser().getEmail(),
+                subscription.getUser().getName(),
+                payment.getPaymentUrl(),
+                subscription.getEndDate()
+        );
     }
 }

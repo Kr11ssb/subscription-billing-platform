@@ -45,10 +45,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public SubscriptionResponseDTO createSubscription(CreateSubscriptionRequestDTO request) {
 
-        /*User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User with id " + request.getUserId() + " not found"));
-*/
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();

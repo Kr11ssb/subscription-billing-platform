@@ -16,7 +16,9 @@ public class NotificationProducer {
 
     public void sendRenewalEmail(RenewalEmailEvent event){
 
-        log.info("Publishing renewal email event for {}",event.email());
+        log.info("Publishing renewal email event. eventId={}, email={}",
+                event.eventId(),
+                event.email());
 
         kafkaTemplate.send(KafkaTopics.RENEWAL_EMAIL_TOPIC,event);
     }

@@ -1,4 +1,8 @@
 package dev.karan.subscriptionbillingplatform.common.enums;
 
-public class ConsumerType {
+public enum ConsumerType {
+
+    EMAIL,
+    PAYMENT,
+    INVOICE
 }
