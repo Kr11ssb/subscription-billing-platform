@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import dev.karan.subscriptionbillingplatform.metrics.BusinessMetrics;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,15 +41,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final PlanRepository planRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionMapper subscriptionMapper;
+    private final BusinessMetrics businessMetrics;
 
 
     @Override
     public SubscriptionResponseDTO createSubscription(CreateSubscriptionRequestDTO request) {
 
-        /*User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User with id " + request.getUserId() + " not found"));
-*/
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
@@ -93,6 +91,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         Subscription savedSubscription = subscriptionRepository.save(subscription);
+        businessMetrics.getSubscriptionCreatedCounter().increment();
         return subscriptionMapper.toResponseDTO(savedSubscription);
     }
 

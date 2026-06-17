@@ -21,6 +21,7 @@ import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
 import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
 import dev.karan.subscriptionbillingplatform.subscription.service.Impl.SubscriptionLifecycleServiceImpl;
+import dev.karan.subscriptionbillingplatform.subscription.service.SubscriptionLifecycleService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import dev.karan.subscriptionbillingplatform.metrics.BusinessMetrics;
 
 @Service
 @AllArgsConstructor
@@ -38,8 +40,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentMapper paymentMapper;
     private final PaymentReferenceGenerator paymentReferenceGenerator;
-    private final SubscriptionLifecycleServiceImpl subscriptionLifecycleService;
-
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
+    private final BusinessMetrics businessMetrics;
 
     private final PaymentGatewayFactory paymentGatewayFactory;
     private final CustomUserDetailsService customUserDetailsService;
@@ -161,6 +163,8 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.SUCCESS);
         payment.setCompletedAt(LocalDateTime.now());
         payment.setGatewayPaymentId(transactionId);
+
+        businessMetrics.getPaymentSuccessCounter().increment();
 
         //Subscription activation
         Subscription subscription = payment.getSubscription();

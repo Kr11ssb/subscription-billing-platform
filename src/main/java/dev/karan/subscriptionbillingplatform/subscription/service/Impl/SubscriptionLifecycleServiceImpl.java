@@ -1,5 +1,6 @@
 package dev.karan.subscriptionbillingplatform.subscription.service.Impl;
 
+import dev.karan.subscriptionbillingplatform.metrics.BusinessMetrics;
 import dev.karan.subscriptionbillingplatform.subscription.entity.Subscription;
 import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
 import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
@@ -19,6 +20,7 @@ public class SubscriptionLifecycleServiceImpl
         implements SubscriptionLifecycleService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final BusinessMetrics businessMetrics;
 
     @Transactional
     @Override
@@ -89,6 +91,8 @@ public class SubscriptionLifecycleServiceImpl
 
         subscription.setEndDate(newEndDate);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
+
+        businessMetrics.getSubscriptionRenewalCounter().increment();
 
     }
 }

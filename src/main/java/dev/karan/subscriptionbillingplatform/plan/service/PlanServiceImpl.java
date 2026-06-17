@@ -13,6 +13,10 @@ import dev.karan.subscriptionbillingplatform.plan.repository.PlanRepository;
 import dev.karan.subscriptionbillingplatform.subscription.entity.SubscriptionStatus;
 import dev.karan.subscriptionbillingplatform.subscription.repository.SubscriptionRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,16 +24,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PlanServiceImpl implements PlanService {
 
     private final PlanRepository planRepository;
     private final PlanMapper planMapper;
     private final SubscriptionRepository subscriptionRepository;
 
-
-
     @Override
     @Transactional
+    @CacheEvict(value = "plans", allEntries = true)
+
     public PlanResponseDTO createPlan(CreatePlanRequestDTO request) {
 
         if(planRepository.existsByName(request.getName())) {
@@ -44,6 +49,8 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     @Transactional
+    @Caching(evict = {@CacheEvict(value = "plan", key = "#planId"),
+                      @CacheEvict(value = "plans", allEntries = true)})
     public PlanResponseDTO updatePlan(Long planId, UpdatePlanRequestDTO request) {
 
         Plan plan = planRepository.findById(planId)
@@ -60,6 +67,9 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     @Transactional
+    @Caching(evict = {@CacheEvict(value = "plan", key = "#planId"),
+            @CacheEvict(value = "plans", allEntries = true)})
+
     public PlanResponseDTO deactivatePlan(Long planId) {
 
         Plan plan = planRepository.findById(planId)
@@ -78,18 +88,27 @@ public class PlanServiceImpl implements PlanService {
         return planMapper.toResponseDTO(plan);
     }
 
-    @Transactional
+
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "plan",
+            key = "#planId")
+
     public PlanResponseDTO getPlanById(Long planId) {
 
-        Plan plan = planRepository.findByIdAndStatus(planId, PlanStatus.ACTIVE)
-                .orElseThrow(() -> new ResourceNotFoundException("Plan with id " + planId + " not found"));
+        log.info("Fetching plan from database: {}", planId);
 
+        Plan plan = planRepository.findByIdAndStatus(planId, PlanStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Plan with id " + planId + " not found"));
 
         return planMapper.toResponseDTO(plan);
     }
 
     @Override
+    @Cacheable(value = "plans",
+    key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+
     public Page<PlanResponseDTO> getAllPlans(Pageable pageable) {
         Page<Plan> planPage = planRepository.findAll(pageable);
         return planPage.map(planMapper::toResponseDTO);

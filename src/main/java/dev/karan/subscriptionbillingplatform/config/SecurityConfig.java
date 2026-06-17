@@ -41,7 +41,8 @@ public class SecurityConfig {
                         "/notifications/**",
                         "/webhooks/**",
                         "/payment/success",
-                        "/payment/cancel"
+                        "/payment/cancel",
+                        "/actuator/**"
                 ).permitAll()
                 .anyRequest().authenticated()
         );

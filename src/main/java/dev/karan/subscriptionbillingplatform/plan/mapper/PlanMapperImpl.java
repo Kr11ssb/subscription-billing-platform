@@ -6,12 +6,16 @@ import dev.karan.subscriptionbillingplatform.plan.dto.UpdatePlanRequestDTO;
 import dev.karan.subscriptionbillingplatform.plan.entity.Plan;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class PlanMapperImpl implements PlanMapper{
 
     @Override
     public Plan toEntity(CreatePlanRequestDTO request) {
+
         Plan plan = new Plan();
+
         plan.setName(request.getName());
         plan.setMonthlyPrice(request.getMonthlyPrice());
         plan.setYearlyPrice(request.getYearlyPrice());
@@ -24,7 +28,9 @@ public class PlanMapperImpl implements PlanMapper{
 
     @Override
     public PlanResponseDTO toResponseDTO(Plan plan) {
+
         PlanResponseDTO response = new PlanResponseDTO();
+
         response.setPlanId(plan.getId());
         response.setName(plan.getName());
         response.setCurrency(plan.getCurrency());
@@ -34,11 +40,21 @@ public class PlanMapperImpl implements PlanMapper{
         response.setFeatures(plan.getFeatures());
         response.setStatus(plan.getStatus());
 
+        // Convert Hibernate PersistentBag to normal List
+        response.setFeatures(
+                plan.getFeatures() == null
+                        ? List.of()
+                        : List.copyOf(plan.getFeatures())
+        );
+
+        response.setStatus(plan.getStatus());
+
         return response;
     }
 
     @Override
     public void applyPatch(Plan plan, UpdatePlanRequestDTO request) {
+
     if(request.getMonthlyPrice()!=null) {
         plan.setMonthlyPrice(request.getMonthlyPrice());
     }
