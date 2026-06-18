@@ -35,3 +35,6 @@ jobs:
 
       - name: Build Project
         run: mvn clean package -DskipTests
+
+      - name: Build Docker Image
+        run: docker build -t subscription-billing-platform .
