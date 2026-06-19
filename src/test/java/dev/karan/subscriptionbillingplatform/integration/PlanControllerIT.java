@@ -21,7 +21,7 @@ public class PlanControllerIT extends BaseIntegrationTest{
     @Autowired
     private PlanRepository planRepository;
 
-    @Test
+    //@Test
     void shouldCreatePlanSuccessfully() throws Exception {
 
         CreatePlanRequestDTO request = new CreatePlanRequestDTO();

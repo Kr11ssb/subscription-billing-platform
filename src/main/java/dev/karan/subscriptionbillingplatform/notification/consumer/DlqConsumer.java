@@ -4,8 +4,13 @@ import dev.karan.subscriptionbillingplatform.notification.event.RenewalEmailEven
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Component
+@ConditionalOnProperty(
+        name = "kafka.enabled",
+        havingValue = "true"
+)
 @Slf4j
 public class DlqConsumer {
 

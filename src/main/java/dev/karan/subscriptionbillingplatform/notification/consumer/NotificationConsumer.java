@@ -11,10 +11,15 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.time.LocalDateTime;
 
 @Component
+@ConditionalOnProperty(
+        name = "kafka.enabled",
+        havingValue = "true"
+)
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationConsumer {
